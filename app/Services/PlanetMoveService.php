@@ -167,7 +167,18 @@ class PlanetMoveService
         $planetModel->planet = $move->target_position;
 
         $planetData = $planetServiceFactory->planetData($move->target_position, false);
-        $planetModel->temp_max = rand($planetData['temperature'][0], $planetData['temperature'][1]);
+        $position = $move->target_position;
+
+        // Set extreme temperatures based on new planet position
+        if ($position === 1) {
+            // Position 1: always highest temperature
+            $planetModel->temp_max = $planetData['temperature'][1]; // 260°C
+        } elseif ($position === 15) {
+            // Position 15: always lowest temperature
+            $planetModel->temp_max = $planetData['temperature'][0]; // -130°C
+        } else {
+            $planetModel->temp_max = rand($planetData['temperature'][0], $planetData['temperature'][1]);
+        }
         $planetModel->temp_min = $planetModel->temp_max - 40;
         $planetModel->save();
 

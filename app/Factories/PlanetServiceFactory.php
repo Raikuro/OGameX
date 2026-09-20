@@ -595,12 +595,14 @@ class PlanetServiceFactory
      */
     private function setupPlanetProperties(Planet $planet, bool $is_first_planet = false, PlayerService|null $player = null): void
     {
-        $planet_data = $this->planetData($planet->planet, $is_first_planet);
+        // Base field max is 252 (maximum possible from position 8 range [156, 252])
+        // Then add the same bonuses as before: server FieldsBonus and Discoverer class bonus
+        $planet->field_max = 252;
 
-        // Random field count between the min and max values and add the Server planet fields bonus setting.
-        $base_fields = rand($planet_data['fields'][0], $planet_data['fields'][1]) + $this->settings->planetFieldsBonus();
+        // Apply Server planet fields bonus setting (existing logic)
+        $planet->field_max = $planet->field_max + $this->settings->planetFieldsBonus();
 
-        // Apply Discoverer class planet size bonus (+10%)
+        // Apply Discoverer class planet size bonus (+10%) if user has selected a class
         // Only apply character class bonus if user has selected a class
         $planetSizeMultiplier = 1.0;
         if ($planet->user_id) {
@@ -613,12 +615,29 @@ class PlanetServiceFactory
                 $planetSizeMultiplier = $characterClassService->getPlanetSizeBonus($player->getUser());
             }
         }
+        $planet->field_max = (int)($planet->field_max * $planetSizeMultiplier);
 
-        $planet->field_max = (int)($base_fields * $planetSizeMultiplier);
+        // Calculate diameter from final field_max
         $planet->diameter = (int) (36.14 * $planet->field_max + 5697.23);
 
-        // Random temperature between the min and max values is assigned to temp_max, then temp_min is calculated as temp_max - 40.
-        $planet->temp_max = rand($planet_data['temperature'][0], $planet_data['temperature'][1]);
+        // Set temperatures:
+        // Position 1: always 260°C maximum (fixed, no randomness)
+        // Position 15: always -130°C maximum (fixed, no randomness)
+        // Positions 2-14: use original random temperature from their range
+        $position = $planet->planet;
+        $planet_data = $this->planetData($position, $is_first_planet);
+
+        if ($position === 1) {
+            // Position 1: always highest temperature (260°C max)
+            $planet->temp_max = 260;
+        } elseif ($position === 15) {
+            // Position 15: always lowest temperature (-130°C max)
+            $planet->temp_max = -130;
+        } else {
+            // Positions 2-14: random within their original range (preserved behavior)
+            $planet->temp_max = rand($planet_data['temperature'][0], $planet_data['temperature'][1]);
+        }
+
         $planet->temp_min = $planet->temp_max - 40;
 
         // Starting resources for planets.
