@@ -38,7 +38,7 @@ class CharacterClassService
      */
     public function hasCharacterClass(User $user): bool
     {
-        return $user->character_class !== null;
+        return true;
     }
 
     /**
@@ -64,7 +64,7 @@ class CharacterClassService
      */
     public function isCollector(User $user): bool
     {
-        return $user->character_class === CharacterClass::COLLECTOR->value;
+        return true;
     }
 
     /**
@@ -75,7 +75,7 @@ class CharacterClassService
      */
     public function isGeneral(User $user): bool
     {
-        return $user->character_class === CharacterClass::GENERAL->value;
+        return true;
     }
 
     /**
@@ -86,7 +86,7 @@ class CharacterClassService
      */
     public function isDiscoverer(User $user): bool
     {
-        return $user->character_class === CharacterClass::DISCOVERER->value;
+        return true;
     }
 
     /**
@@ -229,11 +229,7 @@ class CharacterClassService
      */
     public function getMineProductionBonus(User $user): float
     {
-        if ($this->isCollector($user)) {
-            return 1.25; // +25%
-        }
-
-        return 1.0;
+        return 1.25; // +25%
     }
 
     /**
@@ -245,11 +241,7 @@ class CharacterClassService
      */
     public function getEnergyProductionBonus(User $user): float
     {
-        if ($this->isCollector($user)) {
-            return 1.10; // +10%
-        }
-
-        return 1.0;
+        return 1.10; // +10%
     }
 
     /**
@@ -261,11 +253,7 @@ class CharacterClassService
      */
     public function getTransporterSpeedBonus(User $user): float
     {
-        if ($this->isCollector($user)) {
-            return 2.0; // +100%
-        }
-
-        return 1.0;
+        return 2.0; // +100%
     }
 
     /**
@@ -277,11 +265,7 @@ class CharacterClassService
      */
     public function getTransporterCargoBonus(User $user): float
     {
-        if ($this->isCollector($user)) {
-            return 1.25; // +25%
-        }
-
-        return 1.0;
+        return 1.25; // +25%
     }
 
     /**
@@ -293,11 +277,7 @@ class CharacterClassService
      */
     public function getCrawlerBonusMultiplier(User $user): float
     {
-        if ($this->isCollector($user)) {
-            return 1.5; // +50%
-        }
-
-        return 1.0;
+        return 1.5; // +50%
     }
 
     /**
@@ -309,11 +289,7 @@ class CharacterClassService
      */
     public function getMaxCrawlerOverload(User $user): int
     {
-        if ($this->isCollector($user)) {
-            return 150; // Can overload up to 150%
-        }
-
-        return 100; // Normal max is 100%
+        return 150; // Can overload up to 150%
     }
 
     /**
@@ -346,11 +322,7 @@ class CharacterClassService
      */
     public function getCombatShipSpeedBonus(User $user): float
     {
-        if ($this->isGeneral($user)) {
-            return 2.0; // +100%
-        }
-
-        return 1.0;
+        return 2.0; // +100%
     }
 
     /**
@@ -362,11 +334,7 @@ class CharacterClassService
      */
     public function getRecyclerSpeedBonus(User $user): float
     {
-        if ($this->isGeneral($user)) {
-            return 2.0; // +100%
-        }
-
-        return 1.0;
+        return 2.0; // +100%
     }
 
     /**
@@ -378,11 +346,7 @@ class CharacterClassService
      */
     public function getDeuteriumConsumptionMultiplier(User $user): float
     {
-        if ($this->isGeneral($user)) {
-            return 0.5; // -50% consumption
-        }
-
-        return 1.0;
+        return 0.5; // -50% consumption
     }
 
     /**
@@ -394,11 +358,7 @@ class CharacterClassService
      */
     public function getRecyclerPathfinderCargoBonus(User $user): float
     {
-        if ($this->isGeneral($user)) {
-            return 1.20; // +20%
-        }
-
-        return 1.0;
+        return 1.20; // +20%
     }
 
     /**
@@ -409,11 +369,7 @@ class CharacterClassService
      */
     public function getAdditionalCombatResearchLevels(User $user): int
     {
-        if ($this->isGeneral($user)) {
-            return 2;
-        }
-
-        return 0;
+        return 2;
     }
 
     /**
@@ -424,11 +380,7 @@ class CharacterClassService
      */
     public function getAdditionalFleetSlots(User $user): int
     {
-        if ($this->isGeneral($user)) {
-            return 2;
-        }
-
-        return 0;
+        return 2;
     }
 
     /**
@@ -439,11 +391,7 @@ class CharacterClassService
      */
     public function getAdditionalMoonFields(User $user): int
     {
-        if ($this->isGeneral($user)) {
-            return 5;
-        }
-
-        return 0;
+        return 5;
     }
 
     /**
@@ -454,7 +402,7 @@ class CharacterClassService
      */
     public function hasDetailedFleetSpeedSettings(User $user): bool
     {
-        return $this->isGeneral($user);
+        return true;
     }
 
     /**
@@ -484,11 +432,7 @@ class CharacterClassService
      */
     public function getResearchTimeMultiplier(User $user): float
     {
-        if ($this->isDiscoverer($user)) {
-            return 0.75; // -25% research time
-        }
-
-        return 1.0;
+        return 0.75; // -25% research time
     }
 
     /**
@@ -501,11 +445,7 @@ class CharacterClassService
      */
     public function getExpeditionResourceMultiplier(User $user, float $universeEconomicSpeed): float
     {
-        if ($this->isDiscoverer($user)) {
-            return 1.5 * $universeEconomicSpeed;
-        }
-
-        return 1.0;
+        return 1.5 * $universeEconomicSpeed;
     }
 
     /**
@@ -517,11 +457,7 @@ class CharacterClassService
      */
     public function getPlanetSizeBonus(User $user): float
     {
-        if ($this->isDiscoverer($user)) {
-            return 1.10; // +10% planet size
-        }
-
-        return 1.0;
+        return 1.10; // +10% planet size
     }
 
     /**
@@ -532,11 +468,7 @@ class CharacterClassService
      */
     public function getAdditionalExpeditions(User $user): int
     {
-        if ($this->isDiscoverer($user)) {
-            return 2;
-        }
-
-        return 0;
+        return 2;
     }
 
     /**
@@ -548,11 +480,7 @@ class CharacterClassService
      */
     public function getExpeditionEnemyChanceMultiplier(User $user): float
     {
-        if ($this->isDiscoverer($user)) {
-            return 0.5; // -50% chance
-        }
-
-        return 1.0;
+        return 0.5; // -50% chance
     }
 
     /**
@@ -564,11 +492,7 @@ class CharacterClassService
      */
     public function getPhalanxRangeBonus(User $user): float
     {
-        if ($this->isDiscoverer($user)) {
-            return 1.20; // +20%
-        }
-
-        return 1.0;
+        return 1.20; // +20%
     }
 
     /**
@@ -580,11 +504,7 @@ class CharacterClassService
      */
     public function getExpeditionSlotsBonus(User $user): int
     {
-        if ($this->isDiscoverer($user)) {
-            return 2; // +2 expedition slots
-        }
-
-        return 0;
+        return 2; // +2 expedition slots
     }
 
     /**
@@ -596,11 +516,7 @@ class CharacterClassService
      */
     public function getInactiveLootPercentage(User $user): float
     {
-        if ($this->isDiscoverer($user)) {
-            return 0.75; // 75% loot
-        }
-
-        return 0.5; // Default 50%
+        return 0.75; // 75% loot
     }
 
     /**
@@ -613,9 +529,9 @@ class CharacterClassService
     public function getSpeedupDiscount(User $user, string $type): float
     {
         return match ($type) {
-            'building' => $this->isCollector($user) ? 0.9 : 1.0,
-            'research' => $this->isDiscoverer($user) ? 0.9 : 1.0,
-            'shipyard' => $this->isGeneral($user) ? 0.9 : 1.0,
+            'building' => 0.9,
+            'research' => 0.9,
+            'shipyard' => 0.9,
             default => 1.0,
         };
     }
@@ -628,6 +544,6 @@ class CharacterClassService
      */
     public function hasExpeditionDebrisFieldsVisible(User $user): bool
     {
-        return $this->isDiscoverer($user);
+        return true;
     }
 }
