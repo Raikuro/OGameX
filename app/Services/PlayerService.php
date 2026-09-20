@@ -600,7 +600,8 @@ class PlayerService
 /**
      * Get the (maximum) amount of expedition slots that the player has available.
      *
-     * After researching Astrophysics level 1, there are no limits on simultaneous expeditions.
+     * After researching Astrophysics level 1, the maximum expedition slots is capped
+     * at the player's fleet slots maximum to prevent exceeding fleet movement limits.
      * Before that, the maximum is calculated based on the research level.
      *
      * @return int
@@ -609,12 +610,16 @@ class PlayerService
     {
         $astrophysicsLevel = $this->getResearchLevel('astrophysics');
 
-        // After Astrophysics level 1, there are no limits on simultaneous expeditions
+        // Calculate the player's fleet slots maximum (this is the hard cap for expedition slots)
+        $fleetSlotsMax = $this->getFleetSlotsMax();
+
+        // After Astrophysics level 1, cap expedition slots at fleet slots maximum
         if ($astrophysicsLevel >= 1) {
-            return PHP_INT_MAX; // Effectively unlimited
+            return $fleetSlotsMax;
         }
 
         // Calculate max expedition slots based on the user's astrophysics research level (before level 1)
+        // but still capped at fleet slots maximum
         $object = ObjectService::getResearchObjectByMachineName('astrophysics');
         $expedition_slots_from_research = $object->performCalculation(CalculationType::MAX_EXPEDITION_SLOTS, $astrophysicsLevel);
 
@@ -627,7 +632,10 @@ class PlayerService
         $user = $this->getUser();
         $expedition_slots_bonus = $characterClassService->getExpeditionSlotsBonus($user);
 
-        return $expedition_slots_from_research + $bonus_slots + $expedition_slots_bonus;
+        $rawMax = $expedition_slots_from_research + $bonus_slots + $expedition_slots_bonus;
+
+        // Cap at fleet slots maximum to never exceed fleet movement limits
+        return min($rawMax, $fleetSlotsMax);
     }
 
     /**
