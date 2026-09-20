@@ -68,7 +68,7 @@ class Highscore extends Model
 
     /**
      * Scope to ensure only valid highscore ranks.
-     * Filters out null ranks and rank 0 (used for excluded players like Legor and admins when hidden).
+     * Filters out null ranks and rank 0 (used for excluded players when hidden).
      */
     public function scopeValidRanks(Builder $query): void
     {

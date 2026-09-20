@@ -13,7 +13,7 @@ class IsolatedAccountUserTest extends IsolatedAccountTestCase
     /**
      * Verify that factory-created users are not silently promoted to admin.
      *
-     * The User model's `created` hook promotes the first non-Legor user to admin.
+     * The User model's `created` hook promotes the first user to admin.
      * `IsolatedAccountTestCase::createUser()` creates via `User::withoutEvents(...)`
      * to skip that hook, so factory users must never come back as admin.
      */

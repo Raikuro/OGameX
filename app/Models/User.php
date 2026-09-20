@@ -111,18 +111,13 @@ class User extends Authenticatable
     {
         parent::boot();
 
-        // Automatically assign admin role to the first non-Legor user
+        // Automatically assign admin role to the first user
         static::created(function (User $user) {
-            // Skip Legor
-            if ($user->username === 'Legor') {
-                return;
-            }
+            // Check if this is the first user
+            $firstUserCount = User::where('id', '!=', $user->id)->count();
 
-            // Check if this is the first non-Legor user
-            $nonLegorUserCount = User::where('username', '!=', 'Legor')->where('id', '!=', $user->id)->count();
-
-            if ($nonLegorUserCount === 0) {
-                // This is the first real user - assign admin role and rename to Admin
+            if ($firstUserCount === 0) {
+                // This is the first user - assign admin role and rename to Admin
                 $user->assignRole('admin');
                 $user->username = 'Admin';
                 $user->save();

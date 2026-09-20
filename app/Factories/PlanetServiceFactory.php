@@ -437,8 +437,7 @@ class PlanetServiceFactory
     }
 
     /**
-     * Create a planet at a specific coordinate (bypasses position determination).
-     * Used for special accounts like Legor.
+* Create a planet at a specific coordinate (bypasses position determination).
      *
      * @param PlayerService $player
      * @param Coordinate $coordinate

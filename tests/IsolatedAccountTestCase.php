@@ -121,11 +121,7 @@ abstract class IsolatedAccountTestCase extends TestCase
     protected function createAndLoginUser(): void
     {
         // Seed the planet allocator so the homeworld lands at a fixed, collision-safe
-        // system far from both the seeded Legor admin account (1:1:2) and any planets
-        // leaked by non-transactional tests (Admin/Ban/Buddy populate systems 1..N).
-        // Without this, position-based colonisation tests collide with Legor's 1:1:2, and
-        // the distance between the two home planets drifts (raising deuterium fuel past
-        // the budget in FleetDispatchLargeResourcesTest).
+        // system far from any planets
         resolve(SettingsService::class)->set('last_assigned_system', 400);
 
         $user = $this->createUser();

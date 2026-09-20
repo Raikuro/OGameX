@@ -72,11 +72,6 @@ class AttackMission extends GameMission
             return $vacationCheck;
         }
 
-        // Legor's planet (Arakis at 1:1:2) cannot be attacked
-        if ($adminCheck = $this->checkAdminProtection($targetPlanet, __('This planet belongs to an administrator and cannot be attacked.'))) {
-            return $adminCheck;
-        }
-
         // If all checks pass, the mission is possible.
         return new MissionPossibleStatus(true);
     }

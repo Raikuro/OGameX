@@ -310,12 +310,8 @@ class GalaxyController extends OGameController
         }
 
         if ($targetPlayer->getId() !== $this->playerService->getId()) {
-            // Skip aggressive missions (Espionage, Attack) against Legor
-            $isLegor = $targetPlayer->getUsername(false) === 'Legor';
-
-            if (!$isLegor) {
-                // Espionage (only if foreign planet and not Legor).
-                $availableMissions[] = [
+            // Espionage (only if foreign planet).
+            $availableMissions[] = [
                     'missionType' => 6,
                     'canSpy' => true,
                     'reportId' => '',
@@ -324,13 +320,12 @@ class GalaxyController extends OGameController
                     'name' => __('t_ingame.fleet.mission_espionage'),
                 ];
 
-                // Attack (only if foreign planet and not Legor).
-                $availableMissions[] = [
-                    'missionType' => 1,
-                    'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 1]),
-                    'name' => __('t_ingame.fleet.mission_attack'),
-                ];
-            }
+            // Attack (only if foreign planet).
+            $availableMissions[] = [
+                'missionType' => 1,
+                'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 1]),
+                'name' => __('t_ingame.fleet.mission_attack'),
+            ];
 
             // Check if target player is a buddy or ally member
             $currentUserId = $this->playerService->getUser()->id;

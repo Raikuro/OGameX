@@ -447,18 +447,7 @@ abstract class GameMission
      * Helper method to check if target belongs to a protected admin user.
      *
      * @param PlanetService|null $targetPlanet The target planet/moon.
-     * @param string $errorMessage Custom error message if protected.
-     * @return MissionPossibleStatus|null Returns MissionPossibleStatus if protected, null otherwise.
-     */
-    protected function checkAdminProtection(PlanetService|null $targetPlanet, string $errorMessage): MissionPossibleStatus|null
-    {
-        if ($targetPlanet !== null && $targetPlanet->getPlayer()?->getUsername(false) === 'Legor') {
-            return new MissionPossibleStatus(false, $errorMessage);
-        }
-        return null;
-    }
-
-    /**
+     /**
      * Helper method to check if target planet belongs to the same player (own planet check).
      *
      * @param PlanetService $planet The origin planet.
