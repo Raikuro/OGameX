@@ -597,18 +597,26 @@ class PlayerService
         return $expeditionMissions->count();
     }
 
-    /**
+/**
      * Get the (maximum) amount of expedition slots that the player has available.
      *
-     * This is calculated based on the player's research level and optional bonuses that may apply.
+     * After researching Astrophysics level 1, there are no limits on simultaneous expeditions.
+     * Before that, the maximum is calculated based on the research level.
      *
      * @return int
      */
     public function getExpeditionSlotsMax(): int
     {
-        // Calculate max expedition slots based on the user's astrophysics research level.
+        $astrophysicsLevel = $this->getResearchLevel('astrophysics');
+
+        // After Astrophysics level 1, there are no limits on simultaneous expeditions
+        if ($astrophysicsLevel >= 1) {
+            return PHP_INT_MAX; // Effectively unlimited
+        }
+
+        // Calculate max expedition slots based on the user's astrophysics research level (before level 1)
         $object = ObjectService::getResearchObjectByMachineName('astrophysics');
-        $expedition_slots_from_research = $object->performCalculation(CalculationType::MAX_EXPEDITION_SLOTS, $this->getResearchLevel('astrophysics'));
+        $expedition_slots_from_research = $object->performCalculation(CalculationType::MAX_EXPEDITION_SLOTS, $astrophysicsLevel);
 
         // Add bonus expedition slots from settings
         $settingsService = app(SettingsService::class);
