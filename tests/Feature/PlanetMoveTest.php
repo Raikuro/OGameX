@@ -227,7 +227,7 @@ class PlanetMoveTest extends IsolatedAccountTestCase
     {
         $emptyCoordinate = $this->getNearbyEmptyCoordinate();
 
-        // Schedule the first move.
+        // Schedule the first move (instant).
         $response = $this->post('/ajax/planet-move', [
             '_token' => csrf_token(),
             'galaxy' => $emptyCoordinate->galaxy,
@@ -237,7 +237,7 @@ class PlanetMoveTest extends IsolatedAccountTestCase
         $response->assertStatus(200);
         $response->assertJson(['error' => '']);
 
-        // Try to schedule a second move.
+        // With instant relocation and no cooldown, a second move should succeed.
         $emptyCoordinate2 = $this->getNearbyEmptyCoordinate();
         $response2 = $this->post('/ajax/planet-move', [
             '_token' => csrf_token(),
@@ -247,17 +247,18 @@ class PlanetMoveTest extends IsolatedAccountTestCase
         ]);
 
         $response2->assertStatus(200);
-        $response2->assertJson(['error' => 'A planet relocation is already in progress.']);
+        $response2->assertJson(['error' => '']);
     }
 
     /**
-     * Test that cancelling a pending move works correctly.
+     * Test that cancelling a move is no longer possible with instant relocation.
+     * The move is processed before the cancel endpoint is reached.
      */
     public function testRelocationCancelBeforeExpiry(): void
     {
         $emptyCoordinate = $this->getNearbyEmptyCoordinate();
 
-        // Schedule a move.
+        // Schedule a move (instant).
         $this->post('/ajax/planet-move', [
             '_token' => csrf_token(),
             'galaxy' => $emptyCoordinate->galaxy,
@@ -265,28 +266,29 @@ class PlanetMoveTest extends IsolatedAccountTestCase
             'position' => $emptyCoordinate->position,
         ]);
 
-        // Cancel the move.
+        // Try to cancel — the move is already processed, so no active move exists.
         $response = $this->get('/ajax/planet-move/cancel');
         $response->assertStatus(200);
-        $response->assertJson(['error' => '']);
+        $response->assertJson(['error' => 'No active planet relocation found.']);
 
-        // Verify the move is canceled.
+        // Verify the move was processed (not canceled).
         $move = PlanetMove::where('planet_id', $this->planetService->getPlanetId())->first();
         if ($move === null) {
             $this->fail('Planet move not found.');
         }
-        $this->assertTrue((bool) $move->canceled);
+        $this->assertTrue((bool) $move->processed);
+        $this->assertFalse((bool) $move->canceled);
 
-        // Verify DM was not deducted.
+        // Verify DM was deducted.
         $user = User::find($this->currentUserId);
         if ($user === null) {
             $this->fail('User not found.');
         }
-        $this->assertEquals(500000, $user->dark_matter);
+        $this->assertEquals(500000 - 240000, $user->dark_matter);
     }
 
     /**
-     * Helper to schedule a move, fast-forward time, and process it.
+     * Helper to schedule a move and process it instantly.
      */
     private function scheduleAndProcessMove(Coordinate $emptyCoordinate): PlanetMove
     {
@@ -297,16 +299,8 @@ class PlanetMoveTest extends IsolatedAccountTestCase
             'position' => $emptyCoordinate->position,
         ]);
 
-        $move = PlanetMove::where('planet_id', $this->planetService->getPlanetId())
-            ->where('canceled', false)
-            ->where('processed', false)
-            ->first();
-        if ($move === null) {
-            $this->fail('Planet move not found.');
-        }
-        $move->time_arrive = time() - 1;
-        $move->save();
-
+        // With instant relocation, the move is processed by GlobalGame middleware
+        // on the next request. Trigger processing now.
         $planetMoveService = resolve(PlanetMoveService::class);
         $planetMoveService->processDueMoves(
             resolve(PlanetServiceFactory::class),
@@ -317,6 +311,13 @@ class PlanetMoveTest extends IsolatedAccountTestCase
             resolve(UnitQueueService::class),
             resolve(FleetMissionService::class),
         );
+
+        $move = PlanetMove::where('planet_id', $this->planetService->getPlanetId())
+            ->where('processed', true)
+            ->first();
+        if ($move === null) {
+            $this->fail('Planet move not found.');
+        }
 
         return $move;
     }
@@ -459,7 +460,7 @@ class PlanetMoveTest extends IsolatedAccountTestCase
     }
 
     /**
-     * Test that a 24-hour cooldown is enforced after a successful relocation.
+     * Test that no cooldown is enforced after a successful relocation.
      */
     public function testRelocationCooldownAfterSuccess(): void
     {
@@ -468,7 +469,7 @@ class PlanetMoveTest extends IsolatedAccountTestCase
         // Schedule and process a move successfully.
         $this->scheduleAndProcessMove($emptyCoordinate);
 
-        // Immediately try to schedule another move on the same planet.
+        // Immediately try to schedule another move — should succeed (no cooldown).
         $emptyCoordinate2 = $this->getNearbyEmptyCoordinate();
         $response = $this->post('/ajax/planet-move', [
             '_token' => csrf_token(),
@@ -478,17 +479,17 @@ class PlanetMoveTest extends IsolatedAccountTestCase
         ]);
 
         $response->assertStatus(200);
-        $response->assertJson(['error' => 'Relocation is on cooldown. Please wait before relocating again.']);
+        $response->assertJson(['error' => '']);
     }
 
     /**
-     * Test that a 24-hour cooldown is enforced after cancelling a relocation.
+     * Test that no cooldown is enforced after an instant relocation.
      */
     public function testRelocationCooldownAfterCancel(): void
     {
         $emptyCoordinate = $this->getNearbyEmptyCoordinate();
 
-        // Schedule a move.
+        // Schedule a move (instant).
         $this->post('/ajax/planet-move', [
             '_token' => csrf_token(),
             'galaxy' => $emptyCoordinate->galaxy,
@@ -496,12 +497,12 @@ class PlanetMoveTest extends IsolatedAccountTestCase
             'position' => $emptyCoordinate->position,
         ]);
 
-        // Cancel it.
+        // Cancel fails — move is already processed.
         $response = $this->get('/ajax/planet-move/cancel');
         $response->assertStatus(200);
-        $response->assertJson(['error' => '']);
+        $response->assertJson(['error' => 'No active planet relocation found.']);
 
-        // Immediately try to schedule another move.
+        // Immediately try to schedule another move — should succeed (no cooldown).
         $emptyCoordinate2 = $this->getNearbyEmptyCoordinate();
         $response = $this->post('/ajax/planet-move', [
             '_token' => csrf_token(),
@@ -511,7 +512,7 @@ class PlanetMoveTest extends IsolatedAccountTestCase
         ]);
 
         $response->assertStatus(200);
-        $response->assertJson(['error' => 'Relocation is on cooldown. Please wait before relocating again.']);
+        $response->assertJson(['error' => '']);
     }
 
     /**

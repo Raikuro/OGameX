@@ -597,15 +597,15 @@ class PlayerService
         return $expeditionMissions->count();
     }
 
-/**
-     * Get the (maximum) amount of expedition slots that the player has available.
-     *
-     * After researching Astrophysics level 1, the maximum expedition slots is capped
-     * at the player's fleet slots maximum to prevent exceeding fleet movement limits.
-     * Before that, the maximum is calculated based on the research level.
-     *
-     * @return int
-     */
+    /**
+         * Get the (maximum) amount of expedition slots that the player has available.
+         *
+         * After researching Astrophysics level 1, the maximum expedition slots is capped
+         * at the player's fleet slots maximum to prevent exceeding fleet movement limits.
+         * Before that, the maximum is calculated based on the research level.
+         *
+         * @return int
+         */
     public function getExpeditionSlotsMax(): int
     {
         $astrophysicsLevel = $this->getResearchLevel('astrophysics');

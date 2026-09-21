@@ -34388,7 +34388,6 @@ function FleetHelper(cfg) {
 
   this.COLONIZATION_ENABLED = cfg.COLONIZATION_ENABLED;
   this.MAX_NUMBER_OF_PLANETS = cfg.MAX_NUMBER_OF_PLANETS;
-  this.PLAYER_ID_LEGOR = cfg.PLAYER_ID_LEGOR;
   this.PLAYER_ID_SPACE = cfg.PLAYER_ID_SPACE; // mission constants
 
   this.MISSION_NONE = cfg.missions.MISSION_NONE;
@@ -34423,10 +34422,6 @@ function FleetHelper(cfg) {
 
 FleetHelper.prototype.isPlayerSpace = function (playerId) {
   return playerId === this.PLAYER_ID_SPACE;
-};
-
-FleetHelper.prototype.isPlayerLegor = function (playerId) {
-  return playerId === this.PLAYER_ID_LEGOR;
 };
 
 FleetHelper.prototype.calcDistance = function (from, to, emptySystems, inactiveSystems) {

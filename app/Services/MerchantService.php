@@ -120,58 +120,14 @@ class MerchantService
      */
     private static function generateWeightedRate(string $resourceType): float
     {
-        // Define rate ranges and increments based on resource type
-        $ranges = [
-            'metal' => ['min' => 2.10, 'max' => 3.00, 'increment' => 0.03],
-            'crystal' => ['min' => 1.40, 'max' => 2.00, 'increment' => 0.02],
-            'deuterium' => ['min' => 0.70, 'max' => 1.00, 'increment' => 0.01],
+        // Define max rates based on resource type
+        $maxRates = [
+            'metal' => 3.00,
+            'crystal' => 2.00,
+            'deuterium' => 1.00,
         ];
 
-        $range = $ranges[$resourceType];
-        $min = $range['min'];
-        $max = $range['max'];
-        $increment = $range['increment'];
-
-        // Calculate number of steps
-        $steps = round(($max - $min) / $increment);
-
-        // Generate weights for triangular distribution
-        // Weights increase from 1 to (steps+1), then decrease symmetrically
-        // The maximum value has the highest weight
-        $weights = [];
-        $totalWeight = 0;
-
-        for ($i = 0; $i <= $steps; $i++) {
-            // Triangular distribution: weight increases to middle, then decreases
-            // Maximum value (at $i = $steps) gets highest weight
-            if ($i <= $steps / 2) {
-                $weight = $i + 1;
-            } else {
-                $weight = $steps - $i + 1;
-            }
-
-            // Maximum value (3.00, 2.00, 1.00) gets extra weight for 14.97% probability
-            if ($i == $steps) {
-                $weight = round($weight * 3.14);  // Boost to achieve ~15% probability
-            }
-
-            $weights[$i] = $weight;
-            $totalWeight += $weight;
-        }
-
-        // Select a random weighted index
-        $randomValue = rand(1, (int)$totalWeight);
-        $cumulativeWeight = 0;
-
-        foreach ($weights as $index => $weight) {
-            $cumulativeWeight += $weight;
-            if ($randomValue <= $cumulativeWeight) {
-                return round($min + ($index * $increment), 2);
-            }
-        }
-
-        // Fallback (should never reach here)
-        return $max;
+        return $maxRates[$resourceType];
     }
 
     /**

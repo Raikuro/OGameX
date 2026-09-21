@@ -163,7 +163,6 @@
             var speed = 100
 
             var PLAYER_ID_SPACE = 99999;
-            var PLAYER_ID_LEGOR = 1;
             var DONUT_GALAXY = 1;
             var DONUT_SYSTEM = 1;
             var MAX_GALAXY = {{ $settings->numberOfGalaxies() }};

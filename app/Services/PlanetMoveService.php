@@ -18,25 +18,10 @@ class PlanetMoveService
 {
     /**
      * Get the cooldown seconds remaining before a planet can be relocated again.
-     * A 24-hour cooldown applies after a move is processed or cancelled.
      */
     public function getCooldownSecondsForPlanet(PlanetService $planet): int
     {
-        $lastMove = PlanetMove::where('planet_id', $planet->getPlanetId())
-            ->where(function ($query) {
-                $query->where('canceled', true)->orWhere('processed', true);
-            })
-            ->orderByDesc('updated_at')
-            ->first();
-
-        if ($lastMove === null) {
-            return 0;
-        }
-
-        $updatedAt = $lastMove->updated_at;
-        $updatedTimestamp = $updatedAt !== null ? (int) $updatedAt->timestamp : 0;
-
-        return (int) max(0, ($updatedTimestamp + 86400) - (int) Date::now()->timestamp);
+        return 0;
     }
 
     /**
@@ -51,19 +36,17 @@ class PlanetMoveService
     }
 
     /**
-     * Schedule a planet move with a 24-hour countdown.
+     * Schedule a planet move (instant).
      */
     public function scheduleMoveForPlanet(PlanetService $planet, Coordinate $target, SettingsService $settingsService): PlanetMove
     {
-        $duration = (int) $settingsService->get('planet_relocation_duration', 86400);
-
         return PlanetMove::create([
             'planet_id' => $planet->getPlanetId(),
             'target_galaxy' => $target->galaxy,
             'target_system' => $target->system,
             'target_position' => $target->position,
             'time_start' => time(),
-            'time_arrive' => time() + $duration,
+            'time_arrive' => time(),
             'canceled' => false,
             'processed' => false,
         ]);
