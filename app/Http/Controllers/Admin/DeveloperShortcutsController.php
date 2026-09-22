@@ -5,6 +5,7 @@ namespace OGame\Http\Controllers\Admin;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\View\View;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlanetServiceFactory;
@@ -421,6 +422,49 @@ class DeveloperShortcutsController extends OGameController
             }
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Failed to update dark matter: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Spawns an "Abandoned Fortress" planet at the given coordinates.
+     *
+     * @param Request $request
+     * @param SettingsService $settingsService
+     * @return RedirectResponse
+     */
+    public function spawnLootPlanet(Request $request, SettingsService $settingsService): RedirectResponse
+    {
+        $validated = $request->validate([
+            'galaxy' => 'required|integer|min:1|max:' . $settingsService->numberOfGalaxies(),
+            'system' => 'required|integer|min:1|max:' . UniverseConstants::MAX_SYSTEM_COUNT,
+            'position' => 'required|integer|min:1|max:' . UniverseConstants::MAX_PLANET_POSITION,
+        ]);
+
+        $coordinate = new Coordinate(
+            $validated['galaxy'],
+            $validated['system'],
+            $validated['position']
+        );
+
+        try {
+            $exitCode = Artisan::call(
+                'ogamex:admin:spawn-loot-planet',
+                [
+                    'galaxy' => $coordinate->galaxy,
+                    'system' => $coordinate->system,
+                    'position' => $coordinate->position,
+                ]
+            );
+
+            $output = Artisan::output();
+
+            if ($exitCode === 0) {
+                return redirect()->back()->with('success', 'Fortress spawned successfully at ' . $coordinate->asString() . '!');
+            }
+
+            return redirect()->back()->with('error', 'Failed to spawn fortress: ' . trim($output));
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Failed to spawn fortress: ' . $e->getMessage());
         }
     }
 

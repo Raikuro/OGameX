@@ -291,6 +291,37 @@
                                     </div>
                                 </div>
                             </form>
+
+                            <form action="{{ route('admin.developershortcuts.spawn-loot-planet') }}" name="form" method="post">
+                                {{ csrf_field() }}
+                                <p class="box_highlight textCenter no_buddies">{{ __('t_ingame.admin.dev_spawn_loot_planet') }}</p>
+                                <div class="group bborder" style="display: block;">
+                                    <div class="fieldwrapper">
+                                        <div class="smallFont">{{ __('t_ingame.admin.dev_spawn_loot_planet_desc') }}</div>
+                                        <label class="styled textBeefy">{{ __('t_ingame.admin.dev_coordinates') }}</label>
+                                        <div class="thefield" style="display: flex; gap: 10px;">
+                                            <div>
+                                                <label for="spawn_galaxy">{{ __('t_ingame.admin.dev_galaxy') }}</label>
+                                                <input type="text" id="spawn_galaxy" pattern="^[0-9]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->galaxy }}" min="1" max="{{ $settings->numberOfGalaxies() }}" name="galaxy">
+                                            </div>
+                                            <div>
+                                                <label for="spawn_system">{{ __('t_ingame.admin.dev_system') }}</label>
+                                                <input type="text" id="spawn_system" pattern="^[0-9]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="499" name="system">
+                                            </div>
+                                            <div>
+                                                <label for="spawn_position">{{ __('t_ingame.admin.dev_position') }}</label>
+                                                <input type="text" id="spawn_position" pattern="^[0-9]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->position }}" min="1" max="15" name="position">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="fieldwrapper" style="text-align: center;">
+                                        <input type="submit" class="btn_blue" name="spawn_loot_planet" value="{{ __('t_ingame.admin.dev_spawn_loot_planet_btn') }}">
+                                    </div>
+                                </div>
+                            </form>
                 </div>
             </div>
             </div>
